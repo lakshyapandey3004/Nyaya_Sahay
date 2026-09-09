@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        
+        <div class="page-header">
+          <h1 class="page-title">
+            <span class="icon" id="page-icon"></span>
+            Settings
+          </h1>
+        </div>
+
+        <div class="card">
+          <div class="tabs" id="settings-tabs">
+            <div class="tab-header flex border-b">
+              <button class="tab-btn active px-4 py-2" data-target="tab-profile">Profile</button>
+              <button class="tab-btn px-4 py-2" data-target="tab-security">Security</button>
+              <button class="tab-btn px-4 py-2" data-target="tab-notifications">Notifications</button>
+              <button class="tab-btn px-4 py-2" data-target="tab-sessions">Sessions</button>
+            </div>
+            
+            <div class="tab-content p-4">
+              
+              <div class="tab-pane active" id="tab-profile">
+                <div class="settings-section max-w-2xl">
+                  <h3 class="mb-4">Profile Information</h3>
+                  <div class="form-group mb-4">
+                    <div class="form-row grid grid-2 gap-4">
+                      <div>
+                        <label class="form-label block mb-1">Full Name</label>
+                        <input type="text" class="form-input w-full p-2 border rounded" id="profile-name">
+                      </div>
+                      <div>
+                        <label class="form-label block mb-1">Email Address</label>
+                        <input type="email" class="form-input w-full p-2 border rounded" id="profile-email">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group mb-4">
+                    <div class="form-row grid grid-2 gap-4">
+                      <div>
+                        <label class="form-label block mb-1">Department</label>
+                        <input type="text" class="form-input w-full p-2 border rounded" id="profile-dept" value="Cyber Investigation Wing">
+                      </div>
+                      <div>
+                        <label class="form-label block mb-1">Role</label>
+                        <input type="text" class="form-input w-full p-2 border rounded bg-gray-50" id="profile-role" readonly>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group mb-4">
+                    <label class="form-label block mb-1">Bio / Notes</label>
+                    <textarea class="form-textarea w-full p-2 border rounded h-24" id="profile-bio" placeholder="Enter short bio or operational notes..."></textarea>
+                  </div>
+                  <button class="btn btn-primary" id="btn-save-profile">Save Changes</button>
+                </div>
+              </div>
+
+              <div class="tab-pane hidden" id="tab-security">
+                <div class="settings-section max-w-2xl mb-6">
+                  <h3 class="mb-4">Change Password</h3>
+                  <div class="form-group mb-4">
+                    <label class="form-label block mb-1">Current Password</label>
+                    <input type="password" class="form-input w-full p-2 border rounded">
+                  </div>
+                  <div class="form-group mb-4">
+                    <label class="form-label block mb-1">New Password</label>
+                    <input type="password" class="form-input w-full p-2 border rounded">
+                  </div>
+                  <div class="form-group mb-4">
+                    <label class="form-label block mb-1">Confirm New Password</label>
+                    <input type="password" class="form-input w-full p-2 border rounded">
+                  </div>
+                  <button class="btn btn-primary" id="btn-update-password">Update Password</button>
+                </div>
+
+                <div class="divider mb-6"></div>
+
+                <div class="settings-section max-w-2xl mb-6">
+                  <h3 class="mb-2">Two-Factor Authentication (2FA)</h3>
+                  <p class="text-muted mb-4">Add an extra layer of security to your account.</p>
+                  <label class="flex items-center gap-2 mb-4 cursor-pointer">
+                    <input type="checkbox" checked class="form-checkbox">
+                    <span>Enable Two-Factor Authentication</span>
+                  </label>
+                </div>
+
+                <div class="divider mb-6"></div>
+
+                <div class="settings-section">
+                  <h3 class="mb-4">Login History</h3>
+                  <div class="table-container">
+                    <table class="data-table w-full text-left">
+                      <thead>
+                        <tr>
+                          <th class="p-2 border-b">Date</th>
+                          <th class="p-2 border-b">IP Address</th>
+                          <th class="p-2 border-b">Device</th>
+                          <th class="p-2 border-b">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="p-2 border-b">2026-09-06 10:30 AM</td>
+                          <td class="p-2 border-b">192.168.1.104</td>
+                          <td class="p-2 border-b">Windows / Chrome</td>
+                          <td class="p-2 border-b"><span class="badge badge-success">Success</span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-2 border-b">2026-09-05 09:15 AM</td>
+                          <td class="p-2 border-b">192.168.1.104</td>
+                          <td class="p-2 border-b">Windows / Chrome</td>
+                          <td class="p-2 border-b"><span class="badge badge-success">Success</span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-2 border-b">2026-09-04 11:22 PM</td>
+                          <td class="p-2 border-b">10.0.0.55</td>
+                          <td class="p-2 border-b">Mac / Safari</td>
+                          <td class="p-2 border-b"><span class="badge badge-danger">Failed</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane hidden" id="tab-notifications">
+                <div class="settings-section max-w-2xl">
+                  <h3 class="mb-4">Email Notifications</h3>
+                  <div class="flex flex-col gap-3 mb-6">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>Document uploaded to my case</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>Integrity violation detected</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>New case assigned</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>Court date reminder</span>
+                    </label>
+                  </div>
+
+                  <h3 class="mb-4">System Notifications</h3>
+                  <div class="flex flex-col gap-3 mb-6">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>AI processing complete</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>Permission changes</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" checked class="form-checkbox">
+                      <span>New user added</span>
+                    </label>
+                  </div>
+                  
+                  <button class="btn btn-primary" id="btn-save-notifications">Save Preferences</button>
+                </div>
+              </div>
+
+              <div class="tab-pane hidden" id="tab-sessions">
+                <div class="settings-section">
+                  <h3 class="mb-2">Active Sessions</h3>
+                  <p class="text-muted mb-4">Manage and logout your active sessions on other devices.</p>
+                  
+                  <div class="table-container mb-4">
+                    <table class="data-table w-full text-left">
+                      <thead>
+                        <tr>
+                          <th class="p-2 border-b">Device</th>
+                          <th class="p-2 border-b">IP Address</th>
+                          <th class="p-2 border-b">Location</th>
+                          <th class="p-2 border-b">Last Active</th>
+                          <th class="p-2 border-b">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="p-2 border-b">Windows 11 / Chrome</td>
+                          <td class="p-2 border-b">192.168.1.104</td>
+                          <td class="p-2 border-b">Mumbai, IN</td>
+                          <td class="p-2 border-b">Just now</td>
+                          <td class="p-2 border-b"><span class="badge badge-success">Current</span></td>
+                        </tr>
+                        <tr>
+                          <td class="p-2 border-b">iOS / Safari</td>
+                          <td class="p-2 border-b">103.44.11.2</td>
+                          <td class="p-2 border-b">New Delhi, IN</td>
+                          <td class="p-2 border-b">2 hours ago</td>
+                          <td class="p-2 border-b"><span class="badge badge-neutral">Active</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <button class="btn btn-danger" id="btn-terminate-sessions">Terminate All Other Sessions</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

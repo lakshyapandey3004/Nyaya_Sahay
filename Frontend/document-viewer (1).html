@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Viewer - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+
+    .split-panel { display: flex; gap: 24px; min-height: 600px; }
+    .panel-left { flex: 3; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; }
+    .panel-right { flex: 2; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; max-height: calc(100vh - 200px); }
+    .panel-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #f1f5f9; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+    .panel-right-header { background: #faf5ff; border-bottom: 1px solid #e9d5ff; color: #6b21a8; padding: 16px 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .panel-body { padding: 24px; flex: 1; overflow-y: auto; }
+    .doc-preview-text { font-family: 'Times New Roman', Times, serif; line-height: 1.6; font-size: 1.1rem; color: #1e293b; white-space: pre-wrap; }
+    .insight-section { margin-bottom: 24px; }
+    .insight-title { font-size: 0.85rem; text-transform: uppercase; color: #64748b; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.05em; }
+    .insight-value { color: #1e293b; }
+    .entity-tag { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 0.85rem; font-weight: 500; margin: 0 4px 4px 0; }
+    .entity-person { background: #dbeafe; color: #1d4ed8; }
+    .entity-org { background: #ffedd5; color: #c2410c; }
+    .entity-loc { background: #dcfce7; color: #15803d; }
+    .entity-other { background: #f3f4f6; color: #4b5563; }
+    .ai-summary-box { background: #fff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; line-height: 1.5; color: #334155; }
+    .ai-disclaimer { margin-top: 32px; padding: 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; font-size: 0.8rem; color: #64748b; text-align: center; }
+    .confidence-bar { width: 100%; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .confidence-fill { height: 100%; background: #a855f7; }
+    .flags-box { border-left: 4px solid #ef4444; background: #fef2f2; padding: 12px; border-radius: 0 6px 6px 0; margin-bottom: 8px; color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        <div id="error-state" class="hidden"></div>
+        <div id="doc-content">
+          <div class="page-header">
+            <div>
+              <h1 id="doc-title">Document Name</h1>
+              <div class="mt-2 flex items-center gap-2" id="doc-badges">
+                
+              </div>
+            </div>
+            <div class="page-actions flex gap-2">
+              <button class="btn btn-outline" id="btn-verify-tab-header" onclick="switchViewerTab('verification')">🛡 View Verification Report</button>
+              <button class="btn btn-secondary" onclick="NyayaSahay.showToast('Official encrypted PDF downloaded with STQC cryptographic stamp', 'success')">📥 Download Official Copy</button>
+            </div>
+          </div>
+
+          <!-- Document Viewer Tab Navigation -->
+          <div class="tabs-container mb-4" style="border-bottom: 2px solid #e2e8f0; display:flex; gap:16px;">
+            <button class="tab-btn active" id="tab-btn-preview" onclick="switchViewerTab('preview')" style="padding:10px 16px; font-weight:600; cursor:pointer; background:none; border:none; border-bottom:3px solid #3b82f6; color:#1e293b;">
+              📄 Preview & AI Insights
+            </button>
+            <button class="tab-btn" id="tab-btn-verification" onclick="switchViewerTab('verification')" style="padding:10px 16px; font-weight:600; cursor:pointer; background:none; border:none; border-bottom:3px solid transparent; color:#64748b;">
+              🛡 Document Verification Report
+            </button>
+            <button class="tab-btn" id="tab-btn-audit" onclick="switchViewerTab('audit')" style="padding:10px 16px; font-weight:600; cursor:pointer; background:none; border:none; border-bottom:3px solid transparent; color:#64748b;">
+              ⛓ Blockchain & Audit Trail
+            </button>
+          </div>
+
+          <!-- TAB 1: PREVIEW & AI INSIGHTS -->
+          <div id="tab-pane-preview" class="tab-pane active">
+            <div class="split-panel">
+              <div class="panel-left">
+                <div class="panel-header">
+                  <span id="left-panel-title">Document Preview</span>
+                </div>
+                <div class="panel-body">
+                  <div class="doc-preview-text" id="doc-preview">
+                    Loading preview...
+                  </div>
+                </div>
+              </div>
+              
+              <div class="panel-right">
+                <div class="panel-right-header">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="m5 10 7-7 7 7"></path><path d="m19 14-7 7-7-7"></path></svg>
+                  ✦ AI Insights
+                </div>
+                <div class="panel-body" id="ai-insights-container">
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: DOCUMENT VERIFICATION REPORT -->
+          <div id="tab-pane-verification" class="tab-pane hidden">
+            <div id="verification-report-container">
+              <!-- Rendered dynamically by verification-ui.js & document-viewer.js -->
+            </div>
+          </div>
+
+          <!-- TAB 3: BLOCKCHAIN & AUDIT TRAIL -->
+          <div id="tab-pane-audit" class="tab-pane hidden">
+            <div id="blockchain-audit-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/verificationService.js"></script>
+  <script src="js/services/blockchainService.js"></script>
+  <script src="js/services/documentService.js"></script>
+  <script src="js/components/verification-ui.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/document-viewer.js"></script>
+</body>
+</html>

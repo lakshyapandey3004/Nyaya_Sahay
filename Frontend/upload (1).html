@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Document - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+
+    .drop-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 24px; }
+    .drop-zone:hover, .drop-zone.dragover { border-color: #3b82f6; background-color: #eff6ff; }
+    .drop-zone-icon { color: #94a3b8; margin-bottom: 16px; }
+    .drop-zone-preview { margin-top: 16px; font-weight: 500; color: #1e293b; }
+    .progress-steps { padding-left: 20px; border-left: 2px solid #e2e8f0; margin-left: 10px; position: relative; }
+    .progress-step { position: relative; padding-bottom: 24px; }
+    .progress-step:last-child { padding-bottom: 0; }
+    .progress-step-dot { position: absolute; left: -29px; top: 0; width: 16px; height: 16px; border-radius: 50%; background: #e2e8f0; border: 2px solid #fff; }
+    .progress-step.active .progress-step-dot { background: #3b82f6; box-shadow: 0 0 0 4px #eff6ff; }
+    .progress-step.completed .progress-step-dot { background: #10b981; }
+    .progress-step-content { margin-left: 10px; color: #64748b; font-size: 0.95rem; }
+    .progress-step.active .progress-step-content { color: #1e293b; font-weight: 600; }
+    .progress-step.completed .progress-step-content { color: #10b981; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        <div class="grid-2 gap-4">
+          
+          <div class="card">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 class="section-title">Upload Details</h2>
+              <span class="badge badge-info" style="font-size:0.75rem;">Verification Engine Enabled</span>
+            </div>
+            <div class="card-body">
+              
+              <!-- Demo Scenario Quick Selector -->
+              <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px 14px; margin-bottom:18px;">
+                <div style="font-weight:700; font-size:0.8rem; color:#475569; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                  ⚡ Quick Demo Scenarios (SIH Hackathon Round 2 Evaluation):
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                  <button type="button" class="btn btn-sm" id="btn-demo-1" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-size:0.8rem; font-weight:600;">
+                    🟢 Demo 1: Verified FIR
+                  </button>
+                  <button type="button" class="btn btn-sm" id="btn-demo-2" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:0.8rem; font-weight:600;">
+                    🟠 Demo 2: Suspicious FIR (Human Review)
+                  </button>
+                  <button type="button" class="btn btn-sm" id="btn-demo-3" style="background:#fef2f2; color:#b91c1c; border:1px solid #fca5a5; font-size:0.8rem; font-weight:600;">
+                    🔴 Demo 3: Tampered FIR (Hash Mismatch)
+                  </button>
+                  <button type="button" class="btn btn-sm" id="btn-demo-4" style="background:#fef2f2; color:#991b1b; border:1px solid #ef4444; font-size:0.8rem; font-weight:700;">
+                    🤖 Demo 4: ChatGPT Fake FIR (AI Detected)
+                  </button>
+                  <button type="button" class="btn btn-sm" id="btn-demo-5" style="background:#fefce8; color:#854d0e; border:1px solid #fef08a; font-size:0.8rem; font-weight:700;">
+                    ⚠️ Demo 5: Candidate Resume (Non-Legal Document)
+                  </button>
+                </div>
+              </div>
+
+              <div class="drop-zone" id="drop-zone">
+                <div class="drop-zone-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <div><strong>Drag & drop your file here</strong></div>
+                <div class="text-muted mt-2">or click to browse</div>
+                <div class="text-muted" style="font-size: 0.8rem; margin-top: 8px;">Supported formats: PDF, DOCX, JPG, PNG</div>
+                <input type="file" id="file-input" class="hidden">
+                <div class="drop-zone-preview" id="drop-zone-preview"></div>
+              </div>
+
+              <!-- Direct Paste FIR Text Box for AI Fake Detection -->
+              <div class="form-group mb-3">
+                <label class="form-label" style="font-weight:600; color:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+                  <span>📋 Paste Document / FIR Text for Live AI Verification (Optional)</span>
+                  <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">Detects ChatGPT text & placeholders</span>
+                </label>
+                <textarea id="pasted-text-input" class="form-textarea" rows="3" placeholder="Paste FIR text here to check if it's AI generated (e.g. paste ChatGPT output or draft text with placeholders)..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Select Case</label>
+                <select id="case-select" class="form-select">
+                  <option value="">Select a case...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Document Type</label>
+                <select id="type-select" class="form-select">
+                  <option value="Auto Detect">Auto Detect</option>
+                  <option value="FIR">FIR</option>
+                  <option value="Investigation Report">Investigation Report</option>
+                  <option value="Witness Statement">Witness Statement</option>
+                  <option value="Charge Sheet">Charge Sheet</option>
+                  <option value="Court Filing / Notice">Court Filing / Notice</option>
+                  <option value="Evidence Record">Evidence Record</option>
+                  <option value="Forensic Report">Forensic Report</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea id="desc-input" class="form-textarea" rows="3" placeholder="Brief description of the document..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Tags</label>
+                <div class="tag-input-container" id="tag-container" style="border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; display: flex; flex-wrap: wrap; gap: 8px; cursor: text;">
+                  <input type="text" id="tag-input" style="border: none; outline: none; flex: 1; min-width: 100px;" placeholder="Type and press Enter to add tags">
+                </div>
+              </div>
+
+              <button id="upload-btn" class="btn btn-primary btn-lg" style="width: 100%;">Upload & Verify Document</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Verification Engine Pipeline</h2>
+            </div>
+            <div class="card-body" id="status-container">
+              <div class="empty-state" id="empty-status">
+                <div style="text-align: center; color: #94a3b8; padding: 40px 20px;">
+                  Upload a document to execute the multi-stage verification pipeline
+                </div>
+              </div>
+
+              <div id="processing-status" class="hidden">
+                <div class="progress-steps" id="progress-steps">
+                  <div class="progress-step" id="step-1">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">1. Security Check & Virus Scan</div>
+                  </div>
+                  <div class="progress-step" id="step-2">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">2. OCR Text Extraction & Readability</div>
+                  </div>
+                  <div class="progress-step" id="step-3">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">3. Classification & Metadata Extraction</div>
+                  </div>
+                  <div class="progress-step" id="step-4">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">4. Authority Registry & Digital Signature Check</div>
+                  </div>
+                  <div class="progress-step" id="step-5">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">5. SHA-256 Binary Hash & Blockchain Ledger Record</div>
+                  </div>
+                  <div class="progress-step" id="step-6">
+                    <div class="progress-step-dot"></div>
+                    <div class="progress-step-content">6. Rule Validation & Verification Report Generation</div>
+                  </div>
+                </div>
+
+                <div id="success-message" class="hidden mt-4" style="text-align: center; padding: 20px; background: #ecfdf5; border-radius: 8px; border: 1px solid #10b981;">
+                  <div id="verification-outcome-badge" style="margin-bottom: 12px;"></div>
+                  <div style="color: #065f46; margin-bottom: 16px; font-weight: 600;">Document verification pipeline completed!</div>
+                  <div style="display:flex; justify-content:center; gap:10px;">
+                    <a id="view-verification-btn" href="document-viewer.html?id=DOC-001&tab=verification" class="btn btn-success">
+                      🛡 View Verification Report
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/apiClient.js"></script>
+  <script src="js/services/verificationService.js"></script>
+  <script src="js/services/blockchainService.js"></script>
+  <script src="js/services/documentService.js"></script>
+  <script src="js/components/verification-ui.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>

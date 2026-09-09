@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documents - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        <div class="page-header">
+          <div>
+            <h1>Documents</h1>
+          </div>
+          <div class="page-actions">
+            <a href="upload.html" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Upload Document
+            </a>
+          </div>
+        </div>
+        
+        <div class="filter-bar mb-4 gap-4 flex items-center">
+          <div class="form-group mb-0" style="flex: 1;">
+            <input type="text" id="search-input" class="form-input" placeholder="Search by file name...">
+          </div>
+          <div class="form-group mb-0">
+            <select id="type-filter" class="form-select">
+              <option value="">All Types</option>
+              <option value="FIR">FIR</option>
+              <option value="Investigation Report">Investigation Report</option>
+              <option value="Witness Statement">Witness Statement</option>
+              <option value="Charge Sheet">Charge Sheet</option>
+              <option value="Court Filing / Notice">Court Filing / Notice</option>
+              <option value="Evidence Record">Evidence Record</option>
+              <option value="Forensic Report">Forensic Report</option>
+            </select>
+          </div>
+          <div class="form-group mb-0">
+            <select id="case-filter" class="form-select">
+              <option value="">All Cases</option>
+            </select>
+          </div>
+          <div class="form-group mb-0">
+            <select id="status-filter" class="form-select">
+              <option value="">All Status</option>
+              <option value="Verified">Verified</option>
+              <option value="Tampered">Tampered</option>
+              <option value="Processing">Processing</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4 text-muted">
+          Total Documents: <span id="doc-count">0</span>
+        </div>
+
+        <div class="card">
+          <div id="documents-table-container"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/apiClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/documents.js"></script>
+</body>
+</html>

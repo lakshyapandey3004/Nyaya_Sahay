@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Trail - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+
+    .row-violation { background-color: rgba(220, 53, 69, 0.05); }
+    .row-violation:hover { background-color: rgba(220, 53, 69, 0.1) !important; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        
+        <div class="page-header flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <div id="icon-scroll-container"></div>
+            <h1 class="section-title">Audit Trail</h1>
+          </div>
+        </div>
+
+        <div class="card mb-4 filter-bar p-3 flex flex-wrap gap-3 items-end">
+          <div class="form-group mb-0" style="flex: 1; min-width: 200px;">
+            <label class="form-label text-xs">Search</label>
+            <div class="input-with-icon relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" id="icon-search"></span>
+              <input type="text" id="filter-search" class="form-input pl-9" placeholder="Search user, action, document...">
+            </div>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label text-xs">Date From</label>
+            <input type="date" id="filter-date-from" class="form-input">
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label text-xs">Date To</label>
+            <input type="date" id="filter-date-to" class="form-input">
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label text-xs">User</label>
+            <select id="filter-user" class="form-select">
+              <option value="">All Users</option>
+              
+            </select>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label text-xs">Action</label>
+            <select id="filter-action" class="form-select">
+              <option value="">All Actions</option>
+              <option value="Viewed document">Viewed document</option>
+              <option value="Downloaded document">Downloaded document</option>
+              <option value="Uploaded document">Uploaded document</option>
+              <option value="Updated document">Updated document</option>
+              <option value="Shared document">Shared document</option>
+              <option value="Changed permission">Changed permission</option>
+              <option value="Integrity verification">Integrity verification</option>
+              <option value="Integrity violation detected">Integrity violation detected</option>
+              <option value="Access denied">Access denied</option>
+              <option value="Created case">Created case</option>
+              <option value="AI analysis completed">AI analysis completed</option>
+            </select>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label text-xs">Status</label>
+            <select id="filter-status" class="form-select">
+              <option value="">All</option>
+              <option value="Success">Success</option>
+              <option value="Violation">Violation</option>
+              <option value="Denied">Denied</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-2 text-sm text-muted">
+          Showing <span id="entries-count" class="font-bold">0</span> entries
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0 table-container">
+            <table class="data-table w-100" id="audit-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                  <th>Document</th>
+                  <th>Case</th>
+                  <th>IP Address</th>
+                  <th>Device</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/apiClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/audit.js"></script>
+</body>
+</html>

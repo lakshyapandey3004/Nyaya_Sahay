@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        
+        <div id="role-welcome-banner" class="mb-4"></div>
+        <div id="dashboard-stats" class="grid grid-6 mb-4"></div>
+        
+        <div class="grid grid-1 mb-4">
+          <div class="card">
+            <div class="card-header flex justify-between items-center">
+              <h2>Recent Cases</h2>
+              <a href="cases.html" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            <div class="card-body" style="padding: 0;">
+              <div id="recent-cases-table" class="table-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h2>Recent Activity</h2>
+            </div>
+            <div class="card-body">
+              <div id="recent-activity-timeline" class="timeline"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Critical Dates</h2>
+            </div>
+            <div class="card-body">
+              <div id="critical-dates-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-2 mb-4">
+          <div class="card integrity-card">
+            <div class="card-header integrity-header">
+              <h2>Integrity Overview</h2>
+            </div>
+            <div class="card-body integrity-body">
+              <div id="integrity-summary" class="info-grid"></div>
+            </div>
+          </div>
+
+          <div class="card ai-card">
+            <div class="card-header ai-card-header">
+              <h2>AI Insights Summary</h2>
+            </div>
+            <div class="card-body ai-card-body">
+              <div id="ai-insights-list"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/apiClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

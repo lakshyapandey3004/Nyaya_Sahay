@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advocate Case Vault & AI Intelligence - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .vault-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31103f 100%);
+      color: #ffffff;
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .vault-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0 0 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .vault-subtitle {
+      font-size: 0.875rem;
+      color: #cbd5e1;
+      margin: 0;
+    }
+    .vault-security-pill {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #34d399;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .folder-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #ffffff;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .folder-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-color: #cbd5e1;
+    }
+    .folder-header {
+      padding: 14px 18px;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .folder-name {
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .folder-files-list {
+      padding: 12px 18px;
+    }
+    .file-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+      background: #ffffff;
+      transition: background 0.15s ease;
+    }
+    .file-row:hover {
+      background: #f8fafc;
+    }
+    .file-name-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .file-icon {
+      font-size: 1.2rem;
+    }
+    .file-title {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 0.875rem;
+    }
+    .file-details {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+    .ai-assistant-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .suggestion-chip {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .suggestion-chip:hover {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+    .ai-answer-box {
+      background: #ffffff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .citation-tag {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+
+      <div class="page-content" id="page-content">
+        
+        <!-- Vault Security Banner -->
+        <div class="vault-banner">
+          <div>
+            <div class="vault-title">
+              ⚖ Advocate Case Vault & Legal Intelligence System
+            </div>
+            <p class="vault-subtitle">
+              Restricted to Senior Legal Counsel & Court Officers &bull; Encrypted Multi-Folder Document Management & Instant Case Copilot
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="vault-security-pill">
+              🔒 AES-256 ENCRYPTED VAULT
+            </span>
+            <button class="btn btn-sm" id="btn-add-folder" style="background:#ffffff; color:#0f172a; font-weight:700; border:none;">
+              📁 + New Case Folder
+            </button>
+            <button class="btn btn-primary btn-sm" id="btn-upload-bundle" style="font-weight:700;">
+              📤 Import Document Bundle
+            </button>
+          </div>
+        </div>
+
+        <!-- Case Selection Bar -->
+        <div class="card p-4 mb-4 flex justify-between items-center flex-wrap gap-4" style="border:1px solid #cbd5e1; background:#ffffff;">
+          <div class="flex items-center gap-3 flex-1" style="min-width:300px;">
+            <label class="form-label mb-0" style="font-weight:700; color:#334155; white-space:nowrap;">Select Critical Case:</label>
+            <select id="lawyer-case-select" class="form-select" style="font-weight:600; color:#0f172a;">
+              <!-- Filled via JS -->
+            </select>
+          </div>
+          <div class="flex items-center gap-4 text-sm text-gray-600">
+            <div><strong>Lead Advocate:</strong> <span id="lead-advocate-name">Senior Counsel Vijay Malhotra</span></div>
+            <div><strong>Court:</strong> <span id="court-name">Sessions Court, Delhi</span></div>
+            <div><strong>Access Control:</strong> <span class="badge badge-info" style="font-weight:700;">RESTRICTED ADVOCATE ACCESS</span></div>
+          </div>
+        </div>
+
+        <!-- Main Vault Grid -->
+        <div class="grid grid-2 gap-4">
+          
+          <!-- Left Column: Case Document Folder Explorer -->
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="m-0 font-bold text-gray-800" style="font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+                <span>📂 Case Document Repository</span>
+                <span class="text-xs text-gray-500 font-normal" id="vault-stats-label">(18 Documents &bull; 48.5 MB)</span>
+              </h3>
+              <button class="btn btn-ghost btn-sm" id="btn-toggle-expand" style="font-size:0.8rem;">Collapse All Folders</button>
+            </div>
+
+            <div id="folders-container">
+              <!-- Rendered via lawyer-vault.js -->
+            </div>
+          </div>
+
+          <!-- Right Column: AI Fast Information Retrieval ("Lawyer Copilot") -->
+          <div>
+            <div class="ai-assistant-card">
+              <div class="flex items-center gap-3 mb-3">
+                <div style="background:#eff6ff; color:#2563eb; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  🧠
+                </div>
+                <div>
+                  <h3 class="m-0 font-bold text-gray-900" style="font-size:1.05rem;">AI Case Intelligence & Fast Info Search</h3>
+                  <p class="m-0 text-xs text-gray-500">Ask any question across all 18 case documents to get instant legal synthesis & citations</p>
+                </div>
+              </div>
+
+              <!-- Quick Prompt Pills -->
+              <div class="mb-3 flex flex-wrap gap-2">
+                <span class="suggestion-chip" data-query="witness contradiction">🔍 Witness Contradictions</span>
+                <span class="suggestion-chip" data-query="medical cause of death">🩺 Medical Autopsy & Time of Death</span>
+                <span class="suggestion-chip" data-query="bail arguments">⚖ Bail Motion Precedents</span>
+                <span class="suggestion-chip" data-query="statutory sections">📜 Statutory Sections (BNS 103 / CrPC 161)</span>
+                <span class="suggestion-chip" data-query="ballistics forensic">🧪 CFSL Forensic Ballistics</span>
+              </div>
+
+              <div class="form-group mb-3">
+                <div style="position:relative;">
+                  <textarea id="ai-query-input" class="form-textarea" rows="3" placeholder="Ask AI across all case documents (e.g., 'What were the key contradictions in Ramesh Kumar\'s witness statement?')..."></textarea>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-500" style="display:flex; align-items:center; gap:4px;">
+                  🔒 AES-256 Encrypted In-Memory Retrieval
+                </span>
+                <button class="btn btn-primary" id="btn-run-ai-query" style="font-weight:700;">
+                  ⚡ Ask Legal AI Copilot
+                </button>
+              </div>
+
+              <!-- Result Area -->
+              <div id="ai-query-result-container" class="hidden">
+                <!-- Filled via lawyer-vault.js -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/services/apiClient.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/lawyer-vault.js"></script>
+</body>
+</html>

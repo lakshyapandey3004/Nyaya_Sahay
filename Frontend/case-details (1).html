@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Details - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        <div class="page-header flex justify-between items-center mb-4">
+          <div class="flex items-center gap-3" id="case-header-info">
+            
+          </div>
+          <div class="page-actions flex gap-2">
+            <button class="btn btn-secondary flex items-center gap-2" id="btn-track-pipeline">📍 Track Case Pipeline</button>
+            <button class="btn btn-secondary" id="btn-edit-case">Edit Case</button>
+            <button class="btn btn-primary flex items-center gap-2" id="btn-add-doc" onclick="window.location.href='upload.html'">
+              <span class="icon"></span> Upload Document
+            </button>
+          </div>
+        </div>
+
+        <div class="tabs-container mt-4" id="case-tabs">
+          <div class="tabs flex gap-2 border-b mb-4">
+            <button class="tab-btn active px-4 py-2" data-tab="tab-overview" data-target="tab-overview">Overview</button>
+            <button class="tab-btn px-4 py-2" data-tab="tab-documents" data-target="tab-documents">Case Documents</button>
+            <button class="tab-btn px-4 py-2" data-tab="tab-ai" data-target="tab-ai">AI Document Insights</button>
+            <button class="tab-btn px-4 py-2" data-tab="tab-activity" data-target="tab-activity">Forensic Activity</button>
+          </div>
+          
+          <div class="tab-content">
+            <div class="tab-pane active" id="tab-overview">
+              <div class="grid grid-2 gap-4 mb-4">
+                <div class="card p-4 border rounded">
+                  <div class="card-header mb-3 border-b pb-2">
+                    <h3 class="m-0 font-semibold">Details</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="info-grid grid grid-2 gap-4" id="case-info-grid">
+                      
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card p-4 border rounded">
+                  <div class="card-header mb-3 border-b pb-2">
+                    <h3 class="m-0 font-semibold">Description</h3>
+                  </div>
+                  <div class="card-body text-gray-700" id="case-description">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="grid grid-2 gap-4">
+                <div class="card p-4 border rounded">
+                  <div class="card-header mb-3 border-b pb-2">
+                    <h3 class="m-0 font-semibold">Assigned Users</h3>
+                  </div>
+                  <div class="card-body" id="case-users">
+                  </div>
+                </div>
+                
+                <div class="card p-4 border rounded">
+                  <div class="card-header mb-3 border-b pb-2">
+                    <h3 class="m-0 font-semibold">Critical Dates</h3>
+                  </div>
+                  <div class="card-body" id="case-dates">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tab-pane hidden" id="tab-documents">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="m-0 font-semibold">Case Documents Repository</h3>
+                <button class="btn btn-primary btn-sm" onclick="window.location.href='upload.html'">+ Upload New Document</button>
+              </div>
+              <div class="table-container" id="documents-table">
+              </div>
+            </div>
+            
+            <div class="tab-pane hidden" id="tab-ai">
+              <h3 class="m-0 font-semibold mb-1">AI Document Insights</h3>
+              <p class="text-muted mb-4 text-sm">Automated analysis of documents attached to this case.</p>
+              <div class="grid grid-2 gap-4" id="ai-insights-container">
+              </div>
+            </div>
+            
+            <div class="tab-pane hidden" id="tab-activity">
+              <h3 class="m-0 font-semibold mb-4">Case Activity</h3>
+              <div class="timeline mt-4" id="case-timeline">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="error-state" class="hidden mt-8 text-center"></div>
+      </div>
+    </main>
+  </div>
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/case-details.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permissions - NYAYA-SAHAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+
+    .row-inactive { opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside id="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="header"></header>
+      <div class="page-content" id="page-content">
+        
+        <div class="page-header flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <div id="icon-shield-container"></div>
+            <h1 class="section-title">Permissions & Access Control</h1>
+          </div>
+          <div class="page-actions">
+            <button id="add-user-btn" class="btn btn-primary flex items-center gap-1">
+              <span id="icon-plus"></span> Add User
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0 table-container">
+            <table class="data-table w-100" id="users-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Case Access</th>
+                  <th>Document Access</th>
+                  <th>Status</th>
+                  <th>Last Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  
+  <template id="user-modal-template">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" id="modal-name" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" id="modal-email" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <select id="modal-role" class="form-select">
+        <option value="Admin">Admin</option>
+        <option value="Investigator">Investigator</option>
+        <option value="Officer">Officer</option>
+        <option value="Analyst">Analyst</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Case Access</label>
+      <div class="border rounded p-3 bg-gray-50 max-h-40 overflow-y-auto" id="modal-cases">
+        
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Document Access</label>
+      <select id="modal-doc-access" class="form-select">
+        <option value="All">All Documents</option>
+        <option value="Assigned Cases">Assigned Cases Only</option>
+        <option value="Read Only">Read Only (All)</option>
+      </select>
+    </div>
+  </template>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/mock-data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/permissions.js"></script>
+</body>
+</html>
