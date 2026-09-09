@@ -15,14 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isSemanticMode = true;
 
-    if (MockData.cases) {
-        MockData.cases.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = c.title;
-            filterCase.appendChild(opt);
-        });
-    }
+    (async () => {
+        let casesList = null;
+        if (typeof ApiClient !== 'undefined') {
+            casesList = await ApiClient.getCases();
+        }
+        if (!casesList || casesList.length === 0) {
+            casesList = typeof MockData !== 'undefined' ? MockData.cases : [];
+        }
+        if (filterCase && casesList) {
+            casesList.forEach(c => {
+                const cId = c.case_id || c.id;
+                const title = c.title || c.caseTitle || 'Case';
+                const opt = document.createElement('option');
+                opt.value = cId;
+                opt.textContent = `${cId} - ${title}`;
+                filterCase.appendChild(opt);
+            });
+        }
+    })();
 
     const updateModeUI = () => {
         if (isSemanticMode) {
@@ -126,18 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsCount.textContent = `Search Results (${results.length})`;
         resultsContainer.innerHTML = '';
 
-        results.sort((a,b) => b.relevance - a.relevance).forEach(result => {
-            const doc = MockData.getDocument(result.documentId) || {
-                id: result.documentId || result.id,
-                fileName: result.fileName,
-                type: result.documentType || result.type || 'Legal Document',
-                caseId: result.caseId || 'CR-124/2026',
-                uploadDate: result.uploadDate || new Date().toISOString(),
-                integrityStatus: result.integrityStatus || 'verified',
-                aiStatus: result.aiStatus || 'completed'
-            };
+        results.sort((a,b) => (b.relevance || b.relevanceScore * 100 || 80) - (a.relevance || a.relevanceScore * 100 || 80)).forEach(result => {
+            const fileNameStr = result.fileName || result.file_name || 'Document Record';
+            const caseIdStr = result.caseId || result.case_id || 'CR-124/2026';
+            const docIdStr = result.documentId || result.document_id || result.id || 'DOC-DS-1001';
+            const docTypeStr = result.documentType || result.document_type || result.type || 'Legal Document';
+            const relScore = result.relevance || (result.relevanceScore ? Math.round(result.relevanceScore * 100) : 85);
+            const snippetStr = result.snippet || result.matchedText || 'Document content matched search criteria.';
 
-            const scoreClass = result.relevance > 90 ? 'text-success' : (result.relevance > 70 ? 'text-warning' : 'text-muted');
+            const scoreClass = relScore > 90 ? 'text-success' : (relScore > 70 ? 'text-warning' : 'text-muted');
 
             const item = document.createElement('div');
             item.className = 'card search-result-item p-4 mb-3 flex gap-4';
@@ -148,24 +156,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="search-result-content flex-1">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <a href="document-viewer.html?id=${doc.id}" class="text-lg font-medium text-primary hover:underline">${doc.fileName || result.fileName}</a>
+                            <a href="document-viewer.html?id=${docIdStr}" class="text-lg font-medium text-primary hover:underline">${fileNameStr}</a>
                             <div class="search-result-meta flex items-center gap-2 text-sm text-muted mt-1">
-                                <span class="badge badge-neutral">${doc.type}</span>
+                                <span class="badge badge-neutral">${docTypeStr}</span>
                                 <span>&bull;</span>
-                                <span>Case: <a href="#" class="text-primary hover:underline">${doc.caseId}</a></span>
+                                <span>Case: <a href="case-details.html?id=${caseIdStr}" class="text-primary hover:underline">${caseIdStr}</a></span>
                                 <span>&bull;</span>
-                                <span>Uploaded: ${NyayaSahay.formatDate(doc.uploadDate)}</span>
+                                <span>Uploaded: ${NyayaSahay.formatDate(result.uploadDate || result.uploaded_at || '2026-09-08')}</span>
                                 <span>&bull;</span>
-                                ${NyayaSahay.integrityBadge(doc.integrityStatus)}
+                                ${NyayaSahay.integrityBadge(result.integrityStatus || (result.overallStatus === 'VERIFIED' ? 'verified' : 'flagged'))}
                             </div>
                         </div>
                         <div class="search-result-score text-center">
-                            <div class="text-2xl font-bold ${scoreClass}">${result.relevance}%</div>
+                            <div class="text-2xl font-bold ${scoreClass}">${relScore}%</div>
                             <div class="text-xs text-muted">Relevance</div>
                         </div>
                     </div>
                     <div class="search-result-snippet text-sm bg-gray-50 p-3 rounded border border-gray-100 mt-2">
-                        ${result.snippet ? result.snippet.replace(/<mark>/g, '<mark class="bg-yellow-200 px-1 rounded">') : 'Document content matched search criteria.'}
+                        ${snippetStr.replace(/<mark>/g, '<mark class="bg-yellow-200 px-1 rounded">')}
                     </div>
                     <div class="mt-2 text-xs text-muted flex gap-2">
                         <span class="badge badge-neutral bg-gray-100">Match: ${result.matchType || 'Full Text Search'}</span>

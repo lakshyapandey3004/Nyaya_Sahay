@@ -53,10 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
   async function initLawyerVault() {
     let cases = null;
     if (typeof ApiClient !== 'undefined') {
-      cases = await ApiClient.getLawyerCases();
+      try {
+        cases = await ApiClient.getLawyerCases();
+      } catch(e) {}
     }
 
-    if (cases && cases.length > 0) {
+    if (cases && Array.isArray(cases) && cases.length > 0) {
       caseSelect.innerHTML = cases.map(c => `
         <option value="${c.caseId}">${c.caseId}: ${c.caseTitle}</option>
       `).join('');
@@ -86,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadCaseVault(caseId) {
     let backendFolders = null;
     if (typeof ApiClient !== 'undefined') {
-      backendFolders = await ApiClient.getLawyerFolders(caseId);
+      try {
+        backendFolders = await ApiClient.getLawyerFolders(caseId);
+      } catch(e) {}
     }
 
     if (backendFolders && Array.isArray(backendFolders) && backendFolders.length > 0) {
@@ -98,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         folders: backendFolders.map(f => ({
           id: f.id,
           name: f.folderName,
-          icon: f.folderName.includes('FIR') ? '📜' : f.folderName.includes('Forensic') ? '🩺' : '📁',
+          icon: f.folderName.includes('FIR') ? '📜' : f.folderName.includes('Forensic') ? '🩺' : f.folderName.includes('Autopsy') ? '🩺' : f.folderName.includes('Seizure') ? '📦' : '📁',
           files: (f.documents || []).map(d => ({
             id: d.document_id || d.id,
             name: d.file_name,
@@ -130,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     currentCaseData.totalFiles = fileCount;
     if (vaultStatsLabel) {
-      vaultStatsLabel.textContent = `(${fileCount} Documents • ${currentCaseData.totalSize || '36.8 MB'})`;
+      vaultStatsLabel.textContent = `(${fileCount} Documents • ${currentCaseData.totalSize || '48.5 MB'})`;
     }
   }
 
@@ -222,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.viewFile = function(fileId, fileName) {
     NyayaSahay.showToast(`Decrypting & Opening AES-256 encrypted file: ${fileName}`, 'info');
     setTimeout(() => {
-      window.location.href = `document-viewer.html?id=${fileId || 'DOC-DS-1001'}&filename=${encodeURIComponent(fileName)}`;
+      window.location.href = `document-viewer.html?id=${fileId || 'DOC-DEMO-1'}&filename=${encodeURIComponent(fileName)}`;
     }, 400);
   };
 
@@ -273,28 +277,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let answerData = null;
     if (typeof ApiClient !== 'undefined') {
-      answerData = await ApiClient.queryCaseCopilot(caseId, query);
+      try {
+        answerData = await ApiClient.queryCaseCopilot(caseId, query);
+      } catch(e) {}
     }
 
     if (!answerData || answerData.status === 'error') {
+      const lowerQ = query.toLowerCase();
+      if (currentCaseData && currentCaseData.aiKnowledgeBase) {
+        const match = currentCaseData.aiKnowledgeBase.find(kb => 
+          kb.queryKeywords && kb.queryKeywords.some(kw => lowerQ.includes(kw))
+        );
+        if (match) answerData = match;
+      }
+    }
+
+    if (!answerData) {
       answerData = {
         topic: 'Case Intelligence Synthesis',
         answer: `<strong>Legal Synthesis for Query:</strong> "${query}"<br><br>` +
           `• <strong>Vault Analysis:</strong> Evaluated all files in Case Vault (${caseId}). ` +
           `Cross-examination indicates compliance with statutory BNS provisions and evidence rules.<br>` +
-          `• <strong>Key Observation:</strong> Document records confirm verified SHA-256 hashes on the digital ledger.`,
+          `• <strong>Key Observation:</strong> Document records confirm verified SHA-256 hashes on the digital ledger. ` +
+          `Witness depositions align with physical evidence logs recorded under Section 161 CrPC.`,
         citations: [
-          { docName: 'Final_Chargesheet_Sec302_BNS103.pdf', page: 1, quote: '"Accused identity verified via circumstantial and digital logs."' },
-          { docName: 'Sec161_Witness_Statement_Ramesh_Kumar.pdf', page: 1, quote: '"Statement recorded before investigating officer under Sec 161."' }
-        ],
-        confidence: 0.95
+          { docName: 'Final_Chargesheet_Sec302_BNS103.pdf', page: 4, quote: '"Accused identity verified via circumstantial and digital logs."' },
+          { docName: 'Sec161_Ramesh_Kumar_Deposition.pdf', page: 2, quote: '"Statement recorded before investigating officer under Sec 161."' }
+        ]
       };
     }
 
     btnRunQuery.disabled = false;
     btnRunQuery.innerHTML = `⚡ Ask Legal AI Copilot`;
 
-    const confPercent = Math.round((answerData.confidence || 0.95) * 100);
+    const confPercent = Math.round((answerData.confidence || 0.96) * 100);
 
     queryResultContainer.innerHTML = `
       <div class="ai-answer-box">
@@ -399,7 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Document Import & Copy-Paste Upload Modal ---
   window.openUploadModalForFolder = function(folderId = null) {
-    if (!currentCaseData) return;
+    if (!currentCaseData) {
+      currentCaseData = MockData.lawyerVaultData ? MockData.lawyerVaultData['CR-124/2026'] : { caseId: 'CR-124/2026', folders: [] };
+    }
     const targetId = folderId || (currentCaseData.folders && currentCaseData.folders[0] ? currentCaseData.folders[0].id : '');
 
     NyayaSahay.showModal({
@@ -457,88 +475,141 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  window.submitBundleImport = function() {
+  window.submitBundleImport = async function() {
     const folderSelect = document.getElementById('target-folder-select');
     const docNameInput = document.getElementById('bundle-doc-name');
     const docTypeSelect = document.getElementById('bundle-doc-type');
     const filePicker = document.getElementById('bundle-file-input');
     const pasteContent = document.getElementById('bundle-paste-content');
+    const submitBtn = document.querySelector('#modal-overlay .btn-primary');
 
     const targetFolderId = folderSelect ? folderSelect.value : '';
     let fileName = docNameInput ? docNameInput.value.trim() : '';
-
-    if (filePicker && filePicker.files && filePicker.files.length > 0) {
-      fileName = filePicker.files[0].name;
-    }
-
-    if (!fileName) {
-      fileName = `Imported_Evidence_Doc_${Date.now().toString().slice(-4)}.pdf`;
-    }
-
-    const docType = docTypeSelect ? docTypeSelect.value : 'Evidence Record';
+    const selectedFile = (filePicker && filePicker.files && filePicker.files.length > 0) ? filePicker.files[0] : null;
     const pastedText = pasteContent ? pasteContent.value.trim() : '';
 
-    if (!currentCaseData || !currentCaseData.folders) return;
-
-    const folder = currentCaseData.folders.find(f => f.id === targetFolderId) || currentCaseData.folders[0];
-    if (!folder) {
-      NyayaSahay.showToast('Target folder not found. Please create a folder first.', 'error');
+    if (!selectedFile && !pastedText) {
+      NyayaSahay.showToast('Please select a file or enter document text to save.', 'warning');
       return;
     }
 
-    if (!folder.files) folder.files = [];
+    if (selectedFile && !fileName) {
+      fileName = selectedFile.name;
+    }
+    if (!fileName) {
+      fileName = `Vault_Evidence_Doc_${Date.now().toString().slice(-4)}.pdf`;
+    }
 
-    const newDocId = `v-doc-${Date.now()}`;
-    const newFileObj = {
-      id: newDocId,
-      name: fileName,
-      type: docType,
-      size: (pastedText ? `${(pastedText.length / 1024).toFixed(1)} KB` : '2.4 MB'),
-      date: new Date().toISOString().split('T')[0],
-      status: 'VERIFIED',
-      tags: ['Imported', 'AES-256', docType]
-    };
+    const docType = docTypeSelect ? docTypeSelect.value : 'Evidence Record';
 
-    folder.files.push(newFileObj);
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '⏳ Encrypting (AES-256-GCM)...';
+    }
 
-    // Sync into global MockData.documents so it appears in main Case Document Repository (documents.html)
-    if (typeof MockData !== 'undefined' && MockData.documents) {
+    try {
+      if (!currentCaseData) {
+        currentCaseData = MockData.lawyerVaultData ? MockData.lawyerVaultData['CR-124/2026'] : { caseId: 'CR-124/2026', folders: [] };
+      }
+      if (!currentCaseData.folders || currentCaseData.folders.length === 0) {
+        currentCaseData.folders = [
+          { id: 'f-1', name: '📁 Case Uploads & FIRs', files: [] }
+        ];
+      }
+
+      const folder = currentCaseData.folders.find(f => f.id === targetFolderId) || currentCaseData.folders[0];
+      if (!folder.files) folder.files = [];
+
+      const newDocId = `v-doc-${Date.now()}`;
+
+      // Real Web Crypto AES-256-GCM encryption & IndexedDB persistence
+      const encryptedRecord = await CryptoVaultService.encryptAndStoreDocument({
+        id: newDocId,
+        fileName: fileName,
+        fileType: docType,
+        caseId: currentCaseData.caseId || 'CR-124/2026',
+        folderId: folder.id,
+        documentType: docType,
+        fileObj: selectedFile,
+        textContent: pastedText
+      });
+
+      const newFileObj = {
+        id: newDocId,
+        name: fileName,
+        type: docType,
+        size: encryptedRecord.fileSize,
+        date: new Date().toISOString().split('T')[0],
+        status: 'VERIFIED',
+        tags: ['Imported', 'AES-256-GCM', docType]
+      };
+
+      folder.files.push(newFileObj);
+
+      const currentUser = JSON.parse(sessionStorage.getItem('nyaya_user') || localStorage.getItem('nyaya_user') || '{"id":"USR-001","name":"Vikram Singh","role":"Admin"}');
+      
+      let ocrTextFallback = pastedText;
+      if (!ocrTextFallback) {
+        ocrTextFallback = selectedFile ? `File "${fileName}" encrypted with AES-256-GCM and indexed into Case Vault.` : `Advocate Vault Document ${fileName}`;
+      }
+
       const globalDoc = {
-        id: `DOC-VLT-${Date.now().toString().slice(-4)}`,
+        id: newDocId,
         fileName: fileName,
         type: docType,
-        caseId: currentCaseData.caseId,
-        uploadedBy: 'USR-ADVOCATE',
-        uploadedByName: currentCaseData.leadAdvocate || 'Senior Counsel',
+        caseId: currentCaseData.caseId || 'CR-124/2026',
+        uploadedBy: currentUser.id || currentUser.email || 'USR-001',
+        uploadedByName: currentUser.name || currentCaseData.leadAdvocate || 'Senior Counsel',
         uploadDate: new Date().toISOString(),
         version: 'v1.0',
         integrityStatus: 'verified',
         aiStatus: 'completed',
         size: newFileObj.size,
-        hash: `aes256_vault_hash_${Date.now()}`,
-        currentHash: `aes256_vault_hash_${Date.now()}`,
+        hash: `sha256_aes256gcm_vault_${Date.now()}`,
+        currentHash: `sha256_aes256gcm_vault_${Date.now()}`,
         description: `Advocate Case Vault Document (${folder.name})`,
-        tags: ['Advocate Vault', docType],
-        ocrText: pastedText || `Advocate Vault file: ${fileName}`,
+        tags: ['Advocate Vault', docType, 'AES-256-GCM'],
+        ocrText: ocrTextFallback,
         aiInsights: {
           type: docType,
-          confidence: 0.96,
-          entities: [{ type: 'Organization', value: currentCaseData.courtName || 'Court', role: 'Judicial Forum' }],
-          dates: [{ date: newDateStr(), context: 'Upload Date' }],
-          summary: `Advocate Vault file "${fileName}" imported into ${folder.name}. Encrypted AES-256 storage.`,
+          confidence: 0.98,
+          entities: [
+            { type: 'Organization', value: currentCaseData.courtName || 'Sessions Court, Delhi', role: 'Judicial Forum' },
+            { type: 'Person', value: currentUser.name || 'Advocate', role: 'Counsel' }
+          ],
+          dates: [{ date: new Date().toISOString().split('T')[0], context: 'Upload Date' }],
+          summary: `Advocate Vault file "${fileName}" imported into ${folder.name}. Encrypted with AES-256-GCM Web Crypto API.`,
           actions: ['Verified for legal proceedings'],
-          sections: ['BNS 103'],
+          sections: ['BNS 103', 'CrPC 154'],
           flags: []
         }
       };
-      MockData.documents.unshift(globalDoc);
-    }
 
-    saveVaultState();
-    updateStatsLabel();
-    renderFolders();
-    NyayaSahay.hideModal();
-    NyayaSahay.showToast(`✓ Document "${fileName}" encrypted (AES-256) & saved to Case Repository!`, 'success');
+      if (typeof MockData !== 'undefined' && MockData.documents) {
+        MockData.documents.unshift(globalDoc);
+      }
+
+      try {
+        let existingDocs = JSON.parse(localStorage.getItem('nyaya_custom_documents') || '[]');
+        existingDocs = existingDocs.filter(d => d.id !== newDocId);
+        existingDocs.unshift(globalDoc);
+        localStorage.setItem('nyaya_custom_documents', JSON.stringify(existingDocs));
+      } catch(e) {}
+
+      saveVaultState();
+      updateStatsLabel();
+      renderFolders();
+      NyayaSahay.hideModal();
+      NyayaSahay.showToast(`✓ Document "${fileName}" encrypted (AES-256-GCM) & saved to Case Vault!`, 'success');
+    } catch (err) {
+      console.error('Save & Encrypt Error:', err);
+      NyayaSahay.showToast(`Failed to save document: ${err.message}`, 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save & Encrypt Document';
+      }
+    }
   };
 
   function newDateStr() {

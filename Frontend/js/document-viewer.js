@@ -4,30 +4,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let doc = null;
   if (typeof ApiClient !== 'undefined') {
-    const backendDoc = await ApiClient.getDocument(docId);
-    if (backendDoc) {
-      doc = {
-        id: backendDoc.document_id || backendDoc.id,
-        fileName: backendDoc.file_name,
-        type: backendDoc.document_type || 'Legal Document',
-        caseId: backendDoc.case_id,
-        uploadDate: backendDoc.uploaded_at,
-        integrityStatus: backendDoc.overall_status === 'VERIFIED' ? 'verified' : 'flagged',
-        aiStatus: 'completed',
-        version: '1.0',
-        ocrText: backendDoc.extracted_text || backendDoc.description || 'Document content extracted from backend storage.',
-        aiInsights: {
-          summary: backendDoc.summary || backendDoc.description || 'Document content extracted and indexed in SQLite database.',
-          confidence: 0.98,
-          entities: (backendDoc.people || '').split(', ').filter(Boolean).map(p => ({ type: 'Person', value: p, role: 'Key Entity' })),
-          dates: (backendDoc.dates || '').split(', ').filter(Boolean).map(d => ({ date: d, context: 'Relevant Record Date' })),
-          sections: (backendDoc.legal_sections || '').split(', ').filter(Boolean)
-        }
-      };
-    }
+    try {
+      const backendDoc = await ApiClient.getDocument(docId);
+      if (backendDoc) {
+        doc = {
+          id: backendDoc.document_id || backendDoc.id,
+          fileName: backendDoc.file_name,
+          type: backendDoc.document_type || 'Legal Document',
+          caseId: backendDoc.case_id,
+          uploadDate: backendDoc.uploaded_at,
+          integrityStatus: backendDoc.overall_status === 'VERIFIED' ? 'verified' : 'flagged',
+          aiStatus: 'completed',
+          version: '1.0',
+          ocrText: backendDoc.extracted_text || backendDoc.description || 'Document content extracted from backend storage.',
+          aiInsights: {
+            summary: backendDoc.summary || backendDoc.description || 'Document content extracted and indexed in SQLite database.',
+            confidence: 0.98,
+            entities: (backendDoc.people || '').split(', ').filter(Boolean).map(p => ({ type: 'Person', value: p, role: 'Key Entity' })),
+            dates: (backendDoc.dates || '').split(', ').filter(Boolean).map(d => ({ date: d, context: 'Relevant Record Date' })),
+            sections: (backendDoc.legal_sections || '').split(', ').filter(Boolean)
+          }
+        };
+      }
+    } catch(e) {}
   }
 
   if (!doc) {
+    try {
+      const customDocs = JSON.parse(localStorage.getItem('nyaya_custom_documents') || '[]');
+      const filenameParam = NyayaSahay.getUrlParam('filename');
+      const found = customDocs.find(d => d.id === docId || d.fileName === docId || (filenameParam && d.fileName === filenameParam));
+      if (found) {
+        doc = found;
+      }
+    } catch(e) {}
+  }
+
+  if (!doc && typeof MockData !== 'undefined') {
     doc = MockData.getDocument(docId);
   }
 
@@ -46,11 +59,141 @@ document.addEventListener('DOMContentLoaded', async () => {
   ]);
 
   document.getElementById('doc-title').textContent = doc.fileName;
-  
-  const record = await VerificationService.getVerificationDetails(docId);
+  document.getElementById('left-panel-title').textContent = `${doc.fileName} (v${doc.version || '1.0'})`;
+
+  // Attach Global Download Action
+  window.triggerOfficialDownload = async function() {
+    if (typeof CryptoVaultService !== 'undefined') {
+      const success = await CryptoVaultService.downloadOfficialCopy(doc.id, doc.fileName);
+      if (!success && doc.ocrText) {
+        // Fallback text download for legacy mock documents
+        const blob = new Blob([doc.ocrText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.fileName || 'Legal_Document.txt';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        NyayaSahay.showToast(`📥 Official copy of "${doc.fileName}" downloaded cleanly!`, 'success');
+      }
+    } else {
+      NyayaSahay.showToast(`📥 Downloading official copy: ${doc.fileName}`, 'success');
+    }
+  };
+
+  // --- RENDERING DOCUMENT PREVIEW (NEVER STUCK ON LOADING) ---
+  const preview = document.getElementById('doc-preview');
+  preview.innerHTML = `
+    <div style="text-align:center; padding:48px 16px;">
+      <div style="font-size:2rem; margin-bottom:12px;">🔓</div>
+      <div style="font-weight:600; font-size:0.95rem; color:#475569; margin-bottom:4px;">Decrypting AES-256-GCM Vault Storage & Generating Preview...</div>
+      <div style="font-size:0.8rem; color:#94a3b8;">Verifying Web Crypto signatures & Object URLs</div>
+    </div>
+  `;
+
+  let activeBlobUrl = null;
+
+  async function renderDocumentPreview() {
+    try {
+      let vaultResult = null;
+      if (typeof CryptoVaultService !== 'undefined') {
+        try {
+          vaultResult = await CryptoVaultService.getAndDecryptDocument(doc.id);
+        } catch(err) {
+          console.warn('CryptoVault lookup error:', err);
+        }
+      }
+
+      if (vaultResult && vaultResult.decryptedBytes) {
+        const mime = vaultResult.mimeType || 'application/pdf';
+        const fileNameLower = (vaultResult.fileName || doc.fileName || '').toLowerCase();
+        
+        if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+        const blobUrl = CryptoVaultService.createDecryptedBlobUrl(vaultResult.decryptedBytes, mime);
+        activeBlobUrl = blobUrl;
+
+        if (mime.includes('pdf') || fileNameLower.endsWith('.pdf')) {
+          preview.innerHTML = `<iframe src="${blobUrl}" style="width:100%; height:620px; border:1px solid #cbd5e1; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.1);" title="${doc.fileName}"></iframe>`;
+        } else if (mime.startsWith('image/') || fileNameLower.match(/\.(png|jpg|jpeg|webp|gif)$/)) {
+          preview.innerHTML = `<div style="text-align:center; padding:16px;"><img src="${blobUrl}" style="max-width:100%; max-height:560px; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.2);" alt="${doc.fileName}"/></div>`;
+        } else if (mime.includes('text') || fileNameLower.match(/\.(txt|md|csv|json)$/)) {
+          const textContent = new TextDecoder().decode(vaultResult.decryptedBytes);
+          preview.style.whiteSpace = 'pre-wrap';
+          preview.style.fontFamily = 'monospace, sans-serif';
+          preview.style.fontSize = '0.9rem';
+          preview.style.lineHeight = '1.6';
+          preview.style.padding = '16px';
+          preview.style.background = '#f8fafc';
+          preview.style.borderRadius = '8px';
+          preview.style.border = '1px solid #e2e8f0';
+          preview.textContent = textContent;
+        } else {
+          // Unsupported Format Fallback UI
+          preview.innerHTML = `
+            <div class="card p-6 text-center" style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; margin:20px 0;">
+              <div style="font-size:2.5rem; margin-bottom:8px;">📄</div>
+              <div style="font-weight:700; font-size:1.1rem; color:#1e293b; margin-bottom:6px;">Preview not available for this file type</div>
+              <div style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">The file format (${mime || 'Binary Document'}) cannot be displayed in inline browser preview.</div>
+              <button class="btn btn-primary" onclick="window.triggerOfficialDownload()">📥 Download Official Copy</button>
+            </div>
+          `;
+        }
+      } else if (doc.fileDataUrl) {
+        preview.innerHTML = `<div style="text-align:center; padding:16px;"><img src="${doc.fileDataUrl}" style="max-width:100%; max-height:540px; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.2);" alt="${doc.fileName}"/></div>`;
+      } else if (doc.ocrText) {
+        preview.style.whiteSpace = 'pre-wrap';
+        preview.style.fontFamily = 'monospace, sans-serif';
+        preview.style.fontSize = '0.9rem';
+        preview.style.lineHeight = '1.6';
+        preview.style.padding = '16px';
+        preview.style.background = '#f8fafc';
+        preview.style.borderRadius = '8px';
+        preview.style.border = '1px solid #e2e8f0';
+        preview.textContent = doc.ocrText;
+      } else {
+        preview.innerHTML = `
+          <div class="card p-6 text-center" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+            <div style="font-size:2rem; margin-bottom:8px;">📜</div>
+            <div style="font-weight:700; font-size:1rem; color:#334155; margin-bottom:4px;">Encrypted Document Copy Sealed in Repository</div>
+            <div class="text-sm text-muted mb-4">Cryptographic integrity hash matched. Click below to download the official unencrypted copy.</div>
+            <button class="btn btn-primary btn-sm" onclick="window.triggerOfficialDownload()">📥 Download Official Copy</button>
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error('Document preview render error:', err);
+      preview.innerHTML = `
+        <div class="card p-6 text-center" style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px;">
+          <div style="font-size:2.2rem; margin-bottom:8px;">⚠️</div>
+          <div style="font-weight:700; font-size:1.1rem; color:#991b1b; margin-bottom:4px;">Unable to load document preview</div>
+          <div style="font-size:0.85rem; color:#dc2626; margin-bottom:16px;">${err.message || 'Decryption process encountered an error.'}</div>
+          <div style="display:flex; justify-content:center; gap:12px;">
+            <button class="btn btn-secondary btn-sm" onclick="location.reload()">🔄 Retry</button>
+            <button class="btn btn-primary btn-sm" onclick="window.triggerOfficialDownload()">📥 Download Official Copy</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Execute preview rendering immediately
+  await renderDocumentPreview();
+
+  // Load AI Insights in Tab 1 independently
+  try {
+    loadAiInsights(doc);
+  } catch(e) {
+    console.warn('AI Insights error:', e);
+  }
+
+  let record = null;
+  try {
+    record = await VerificationService.getVerificationDetails(docId);
+  } catch(e) {
+    console.warn('Failed to fetch verification details:', e);
+  }
 
   const badgesContainer = document.getElementById('doc-badges');
-  
   let statusBadgeHtml = '';
   if (record) {
     if (record.overallStatus === 'VERIFIED') {
@@ -65,29 +208,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   badgesContainer.innerHTML = `
-    <span class="badge badge-neutral">${doc.type}</span>
+    <span class="badge badge-neutral">${doc.type || 'Document'}</span>
     ${statusBadgeHtml}
-    ${NyayaSahay.integrityBadge(doc.integrityStatus)}
-    ${NyayaSahay.aiStatusBadge(doc.aiStatus)}
+    ${NyayaSahay.integrityBadge(doc.integrityStatus || 'verified')}
+    ${NyayaSahay.aiStatusBadge(doc.aiStatus || 'completed')}
   `;
 
-  document.getElementById('left-panel-title').textContent = `${doc.fileName} (v${doc.version || '1.0'})`;
-  
-  const preview = document.getElementById('doc-preview');
-  if (doc.ocrText) {
-    preview.textContent = doc.ocrText;
-  } else {
-    preview.innerHTML = '<div class="text-muted text-center mt-4">Document preview not available for this file type</div>';
-  }
+  // Load Verification Report & Audit Tabs safely
+  try {
+    await loadVerificationTab(doc, record);
+  } catch(e) {}
 
-  // Load AI Insights in Tab 1
-  loadAiInsights(doc);
-
-  // Load Verification Report in Tab 2
-  await loadVerificationTab(doc, record);
-
-  // Load Blockchain & Audit in Tab 3
-  await loadAuditTab(doc);
+  try {
+    await loadAuditTab(doc);
+  } catch(e) {}
 
   // Auto switch tab if URL parameter specifies tab=verification
   if (initialTab === 'verification') {

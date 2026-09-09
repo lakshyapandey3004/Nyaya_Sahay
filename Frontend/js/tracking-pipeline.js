@@ -20,15 +20,33 @@ document.addEventListener('DOMContentLoaded', () => {
       this.bindFormSubmit();
     },
 
-    populateCaseDropdown() {
+    async populateCaseDropdown() {
       const dropdown = document.getElementById('case-select-dropdown');
       if (!dropdown) return;
 
-      dropdown.innerHTML = MockData.cases.map(c => `
-        <option value="${c.id}" ${c.id === this.currentCaseId ? 'selected' : ''}>
-          ${c.id} — ${c.title} (${c.type})
-        </option>
-      `).join('');
+      let casesList = null;
+      if (typeof ApiClient !== 'undefined') {
+        casesList = await ApiClient.getCases();
+      }
+      if (!casesList || casesList.length === 0) {
+        casesList = typeof MockData !== 'undefined' ? MockData.cases : [];
+      }
+
+      dropdown.innerHTML = casesList.map(c => {
+        const cId = c.case_id || c.id;
+        const title = c.title || c.caseTitle || 'Legal Case';
+        const type = c.case_type || c.type || 'Criminal';
+        return `
+          <option value="${cId}" ${cId === this.currentCaseId ? 'selected' : ''}>
+            ${cId} — ${title} (${type})
+          </option>
+        `;
+      }).join('');
+
+      dropdown.onchange = (e) => {
+        const selectedId = e.target.value;
+        this.loadCase(selectedId);
+      };
     },
 
     async loadCase(caseId) {

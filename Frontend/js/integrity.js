@@ -48,7 +48,7 @@ function renderStats() {
   let verifiedClean = 9;
   let integrityAlerts = 1;
 
-  if (ledgerData && Array.isArray(ledgerData)) {
+  if (ledgerData && Array.isArray(ledgerData) && ledgerData.length > 0) {
     totalDocs = ledgerData.length;
     integrityAlerts = ledgerData.filter(d => d.overall_status === 'VERIFICATION_FAILED').length;
     verifiedClean = totalDocs - integrityAlerts;
@@ -76,7 +76,7 @@ function renderTable() {
       currentHash: l.current_hash || l.stored_hash || l.document_hash || 'SHA256-PENDING',
       integrityStatus: l.overall_status === 'VERIFIED' ? 'verified' : 'violated'
     }));
-  } else {
+  } else if (typeof MockData !== 'undefined') {
     docsList = MockData.documents.slice(0, 10);
   }
   
@@ -119,7 +119,7 @@ function renderTable() {
         Verifying...
       </div>`;
       
-      await NyayaSahay.simulateAsync(1000);
+      await NyayaSahay.simulateAsync(2000);
       
       statusCell.innerHTML = originalHtml;
       const isTampered = docId === 'DOC-005';

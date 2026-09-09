@@ -13,32 +13,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let allDocuments = [];
   if (typeof ApiClient !== 'undefined') {
-    const backendDocs = await ApiClient.getDocuments();
-    if (backendDocs && Array.isArray(backendDocs) && backendDocs.length > 0) {
-      allDocuments = backendDocs.map(d => ({
-        id: d.document_id || d.id,
-        fileName: d.file_name,
-        type: d.document_type || 'Legal Document',
-        caseId: d.case_id,
-        uploadedByName: d.uploaded_by || 'Inspector R. Sharma',
-        uploadDate: d.uploaded_at,
-        version: '1.0',
-        size: d.file_size ? `${(parseInt(d.file_size)/1024).toFixed(1)} KB` : '1.5 MB',
-        integrityStatus: d.overall_status === 'VERIFIED' ? 'verified' : 'flagged',
-        aiStatus: 'completed'
-      }));
-    }
+    try {
+      const backendDocs = await ApiClient.getDocuments();
+      if (backendDocs && Array.isArray(backendDocs) && backendDocs.length > 0) {
+        allDocuments = backendDocs.map(d => ({
+          id: d.document_id || d.id,
+          fileName: d.file_name,
+          type: d.document_type || 'Legal Document',
+          caseId: d.case_id,
+          uploadedByName: d.uploaded_by || 'Inspector R. Sharma',
+          uploadDate: d.uploaded_at,
+          version: '1.0',
+          size: d.file_size ? `${(parseInt(d.file_size)/1024).toFixed(1)} KB` : '1.5 MB',
+          integrityStatus: d.overall_status === 'VERIFIED' ? 'verified' : 'flagged',
+          aiStatus: 'completed'
+        }));
+      }
+    } catch(e) {}
   }
+
+  // Also include custom uploads from localStorage so newly uploaded docs show immediately
+  try {
+    const customDocs = JSON.parse(localStorage.getItem('nyaya_custom_documents') || '[]');
+    customDocs.forEach(cd => {
+      if (!allDocuments.some(d => d.id === cd.id)) {
+        allDocuments.unshift(cd);
+      }
+    });
+  } catch(e) {}
 
   if (allDocuments.length === 0 && typeof MockData !== 'undefined') {
     allDocuments = MockData.documents || [];
   }
 
-  if (MockData && MockData.cases) {
-    MockData.cases.forEach(c => {
+  let realCases = null;
+  if (typeof ApiClient !== 'undefined') {
+    realCases = await ApiClient.getCases();
+  }
+  if (!realCases || realCases.length === 0) {
+    realCases = typeof MockData !== 'undefined' ? MockData.cases : [];
+  }
+
+  if (caseFilter && realCases) {
+    realCases.forEach(c => {
+      const cId = c.case_id || c.id;
+      const cTitle = c.title || c.caseTitle || 'Case';
       const option = document.createElement('option');
-      option.value = c.id;
-      option.textContent = `${c.id} - ${c.title}`;
+      option.value = cId;
+      option.textContent = `${cId} - ${cTitle}`;
       caseFilter.appendChild(option);
     });
   }

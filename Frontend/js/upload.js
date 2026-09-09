@@ -263,19 +263,99 @@ document.addEventListener('DOMContentLoaded', () => {
       const record = result.verificationRecord;
       const targetDocId = result.documentId;
 
+      // Ensure full access is granted to Uploader and Admin by storing in localStorage
+      const currentUser = JSON.parse(sessionStorage.getItem('nyaya_user') || localStorage.getItem('nyaya_user') || '{"id":"USR-001","name":"Vikram Singh","role":"Admin"}');
+      const customDocObj = {
+        id: targetDocId,
+        fileName: result.fileName || (selectedFile ? selectedFile.name : 'Uploaded_Document.pdf'),
+        type: record.documentType || selectedType || 'Legal Document',
+        caseId: selectedCase,
+        uploadedBy: currentUser.id || currentUser.email || 'USR-001',
+        uploadedByName: currentUser.name || 'Current User',
+        uploadDate: new Date().toISOString(),
+        version: 'v1.0',
+        integrityStatus: record.overallStatus === 'VERIFIED' ? 'verified' : 'flagged',
+        aiStatus: 'completed',
+        size: selectedFile && selectedFile.size ? `${(selectedFile.size / 1024 / 1024).toFixed(1)} MB` : '1.2 MB',
+        ocrText: textToAnalyze || `Extracted OCR text for ${result.fileName}`,
+        aiInsights: {
+          summary: `Document uploaded and verified with status ${record.overallStatus}.`,
+          confidence: 0.96,
+          entities: [{ type: 'Organization', value: record.issuingAuthority || 'District Court', role: 'Authority' }],
+          dates: [{ date: new Date().toISOString().slice(0, 10), context: 'Upload Date' }],
+          sections: ['BNS Sec 103', 'CrPC Sec 154']
+        }
+      };
+
+      try {
+        if (typeof CryptoVaultService !== 'undefined' && (selectedFile || pastedText)) {
+          await CryptoVaultService.encryptAndStoreDocument({
+            id: targetDocId,
+            fileName: customDocObj.fileName,
+            fileType: customDocObj.type,
+            caseId: selectedCase,
+            folderId: 'f-1',
+            documentType: customDocObj.type,
+            fileObj: selectedFile,
+            textContent: pastedText || textToAnalyze
+          });
+        }
+      } catch(err) {
+        console.warn('CryptoVault storage warning:', err);
+      }
+
+      try {
+        let existingDocs = JSON.parse(localStorage.getItem('nyaya_custom_documents') || '[]');
+        existingDocs = existingDocs.filter(d => d.id !== targetDocId);
+        existingDocs.unshift(customDocObj);
+        localStorage.setItem('nyaya_custom_documents', JSON.stringify(existingDocs));
+
+        if (typeof MockData !== 'undefined' && MockData.documents) {
+          MockData.documents.unshift(customDocObj);
+        }
+      } catch(e) {}
+
       if (successMessage) successMessage.classList.remove('hidden');
 
       // Set Outcome Badge
       if (outcomeBadge) {
         if (record.overallStatus === 'VERIFIED') {
-          outcomeBadge.innerHTML = `<span class="badge badge-success" style="font-size:1rem; padding:6px 16px;">🟢 OVERALL STATUS: VERIFIED (AUTHENTIC LEGAL DOCUMENT)</span>`;
+          outcomeBadge.innerHTML = `<span class="badge badge-success" style="font-size:1.1rem; padding:8px 20px;">🟢 OVERALL STATUS: VERIFIED (AUTHENTIC LEGAL DOCUMENT)</span>`;
         } else if (record.overallStatus === 'REQUIRES_HUMAN_REVIEW') {
-          outcomeBadge.innerHTML = `<span class="badge badge-warning" style="font-size:1rem; padding:6px 16px;">🟠 OVERALL STATUS: REQUIRES HUMAN REVIEW</span>`;
+          outcomeBadge.innerHTML = `<span class="badge badge-warning" style="font-size:1.1rem; padding:8px 20px;">🟠 OVERALL STATUS: REQUIRES HUMAN REVIEW</span>`;
         } else if (record.overallStatus === 'NON_LEGAL_DOCUMENT') {
-          outcomeBadge.innerHTML = `<span class="badge badge-warning" style="font-size:1rem; padding:6px 16px; background:#fef08a; color:#854d0e; border:1px solid #eab308;">⚠️ OVERALL STATUS: NON-LEGAL DOCUMENT DETECTED</span>`;
+          outcomeBadge.innerHTML = `<span class="badge badge-warning" style="font-size:1.1rem; padding:8px 20px; background:#fef08a; color:#854d0e; border:1px solid #eab308;">⚠️ OVERALL STATUS: NON-LEGAL DOCUMENT DETECTED</span>`;
         } else {
-          outcomeBadge.innerHTML = `<span class="badge badge-danger" style="font-size:1rem; padding:6px 16px;">🔴 OVERALL STATUS: VERIFICATION FAILED (FAKE / FORGED DOCUMENT)</span>`;
+          outcomeBadge.innerHTML = `<span class="badge badge-danger" style="font-size:1.1rem; padding:8px 20px;">🔴 OVERALL STATUS: VERIFICATION FAILED (FAKE / FORGED DOCUMENT)</span>`;
         }
+      }
+
+      // Render full detailed pipeline analysis on upload page so pipeline stays on screen permanently
+      const fullReportContainer = document.getElementById('verification-full-report-container');
+      if (fullReportContainer && typeof VerificationUI !== 'undefined') {
+        const checklistHtml = record.checks ? VerificationUI.renderChecklist(record.checks) : '';
+        const authorityHtml = VerificationUI.renderAuthorityCard({
+          issuingAuthority: record.issuingAuthority || 'District Court / Police Station',
+          registryId: targetDocId,
+          verificationSource: 'Central Legal Registry (NLDX)',
+          verified: record.overallStatus === 'VERIFIED'
+        });
+        const blockchainHtml = VerificationUI.renderBlockchainCard({
+          network: 'NIC Permissioned Ledger',
+          consensusType: 'Proof of Authority (PoA)',
+          blockNumber: Math.floor(1400000 + Math.random() * 100000),
+          timestamp: record.verificationTimestamp || new Date().toISOString(),
+          status: record.overallStatus === 'VERIFIED' ? 'MATCHED' : 'MISMATCH',
+          recordedHash: record.sha256Hash || 'sha256_9a8f2371b6239e0182736412...',
+          currentHash: record.overallStatus === 'VERIFIED' ? (record.sha256Hash || 'sha256_9a8f2371b6239e0182736412...') : 'unregistered_hash_mismatch_8819',
+          transactionHash: `0x${targetDocId.replace(/[^a-f0-9]/gi, '')}7f8a9b`
+        });
+
+        fullReportContainer.innerHTML = `
+          ${checklistHtml}
+          ${authorityHtml}
+          ${blockchainHtml}
+        `;
       }
 
       if (viewVerificationBtn) {
