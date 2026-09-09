@@ -1,0 +1,29 @@
+================================================================================
+CENTRAL FORENSIC SCIENCE LABORATORY (CFSL) EXAMINATION REPORT
+REPORT NO: CFSL/DELHI/2026/EVI-0892 | CASE REF: CR-124/2026
+EXAMINATION TYPE: DIGITAL FORENSICS, LATENT FINGERPRINTS & PHYSICAL EVIDENCE
+================================================================================
+
+EXAMINATION REQUEST:
+Exhibits received from Investigating Officer Inspector R. Sharma (Saket PS) on 14/08/2026.
+
+EXHIBITS TESTED:
+1. Exhibit-A: Metallic blunt instrument recovered from crime scene near streetlight pole #4.
+2. Exhibit-B: Forged property document agreement (Plot No. 88 Saket).
+3. Exhibit-C: Recovered SanDisk 64GB USB Flash Drive containing scanned land registry deeds.
+
+FORENSIC FINDINGS:
+1. LATENT FINGERPRINT ANALYSIS:
+   - 8 distinct ridge minutiae matching right thumb and index fingerprint of accused Rajesh Kumar were detected on Exhibit-A (blunt instrument) and Exhibit-B (forged document).
+2. DIGITAL EVIDENCE RECOVERY:
+   - USB Flash Drive (Exhibit-C) yielded modified PDF files created on 10/08/2026 using Adobe Acrobat. Digital signatures on the land deed were synthetically altered and do not match the official Registrar stamp of Saket Sub-Registrar Office.
+3. DNA MATCHING:
+   - Epithelial cells extracted from Exhibit-A match DNA profile of accused Rajesh Kumar with 99.98% probability.
+
+CONCLUSION:
+Forensic evidence conclusively links accused Rajesh Kumar to the weapon and forged property documents in Case CR-124/2026.
+
+EXAMINER:
+Dr. S.K. Nanda, Principal Forensic Scientist, CFSL Delhi
+[Digital Certification & STQC Cryptographic Hash Verified]
+================================================================================
