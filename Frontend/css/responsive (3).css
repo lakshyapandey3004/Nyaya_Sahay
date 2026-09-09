@@ -1,0 +1,103 @@
+@media (max-width: 1024px) {
+  :root { --sidebar-width: 0px; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); width: 260px; }
+  .main-content { margin-left: 0; }
+  .sidebar-toggle { display: flex; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-6 { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .split-panel { grid-template-columns: 1fr; height: auto; }
+  .panel-left { min-height: 400px; }
+  .header-search input { width: 200px; }
+  .header-search input:focus { width: 240px; }
+  .login-left { display: none; }
+  .login-right { width: 100%; max-width: 480px; margin: 0 auto; }
+  .info-grid { grid-template-columns: 1fr; }
+  .filter-bar { gap: 8px; }
+  .form-row { grid-template-columns: 1fr; }
+  .portal-container { grid-template-columns: 1fr; gap: 36px; }
+  .portal-main { padding: 32px 16px; }
+  .gov-services-grid { grid-template-columns: repeat(2, 1fr); }
+  .gov-footer-top { grid-template-columns: 1fr 1fr; }
+  .gov-hero-split-container { grid-template-columns: 1fr; gap: 32px; }
+  .gov-hero-right { justify-content: center; }
+  .workflow-steps-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .role-overview-grid { grid-template-columns: 1fr; }
+  .workflow-steps-grid { grid-template-columns: 1fr; }
+  .page-content { padding: 16px; }
+  .grid-2, .grid-3, .grid-4, .grid-6 { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .header-search { display: none; }
+  .stat-card { padding: 16px; }
+  .stat-value { font-size: 1.5rem; }
+  .data-table { font-size: 0.8125rem; }
+  .data-table th, .data-table td { padding: 10px 12px; }
+  .filter-bar { flex-direction: column; }
+  .filter-bar .form-input, .filter-bar .form-select { width: 100%; min-width: unset; }
+  .filter-bar .search-filter { max-width: 100%; }
+  .toast { min-width: unset; max-width: calc(100vw - 48px); }
+  .toast-container { left: 24px; right: 24px; }
+  .modal { margin: 16px; max-height: calc(100vh - 32px); }
+  .login-card { padding: 28px; }
+  .breadcrumbs { display: none; }
+  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-btn { white-space: nowrap; padding: 10px 14px; font-size: 0.8125rem; }
+  .notification-dropdown { width: calc(100vw - 48px); right: -60px; }
+  .search-large input { padding: 14px 16px 14px 44px; font-size: 0.9375rem; }
+  .portal-header-container { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .portal-nav { gap: 16px; font-size: 0.8125rem; }
+  .portal-main-heading { font-size: 2rem; }
+  .portal-footer-container { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .gov-header-container { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .gov-nav { gap: 12px; font-size: 0.8125rem; flex-wrap: wrap; }
+  .gov-hero-title { font-size: 2.25rem; }
+  .gov-hero-subtitle { font-size: 1rem; }
+  .gov-search-input-group { flex-direction: column; }
+  .gov-search-input { width: 100%; border-bottom: 1px solid #e2e8f0; }
+  .gov-search-category { width: 100%; border-left: none; border-bottom: 1px solid #e2e8f0; }
+  .gov-search-btn { width: 100%; }
+  .gov-vision-card { flex-direction: column; gap: 12px; }
+  .gov-services-grid { grid-template-columns: 1fr; }
+  .gov-footer-top { grid-template-columns: 1fr; gap: 24px; }
+  .hero-feature-cards-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .page-content { padding: 12px; }
+  .grid { gap: 12px; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  .header { padding: 0 16px; }
+  .header-title { font-size: 1.125rem; }
+  .btn { padding: 8px 14px; font-size: 0.8125rem; }
+  .card-body { padding: 16px; }
+  .card-header { padding: 12px 16px; }
+  .drop-zone { padding: 32px 16px; }
+  .login-card { padding: 24px 20px; }
+  .login-branding h1 { font-size: 2rem; }
+  .auth-panel { padding: 20px 16px; }
+  .portal-main-heading { font-size: 1.75rem; }
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+.sidebar-overlay.show {
+  display: block;
+}
+
+@media print {
+  .sidebar, .header, .toast-container, .modal-overlay { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  .page-content { padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  body { background: white; }
+}
